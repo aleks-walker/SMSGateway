@@ -1,0 +1,40 @@
+{
+  "project_info": {
+    "project_number": "870806535030",
+    "firebase_url": "https://smsgateway-d7b7b.firebaseio.com",
+    "project_id": "smsgateway-d7b7b",
+    "storage_bucket": "smsgateway-d7b7b.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:870806535030:android:fead49e65b7e19faea9857",
+        "android_client_info": {
+          "package_name": "kg.kloop.android.smsgateway"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "870806535030-sq3u41m5lsbv60rf1tjjdcciep1deakf.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBUkNbnFBuvX6bZVLnXneplmjt5NMdTkkM"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "870806535030-sq3u41m5lsbv60rf1tjjdcciep1deakf.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
