@@ -38,24 +38,29 @@ class MainFragment : Fragment() {
             container,
             false)
 
+        viewModel.user.value = FirebaseAuth.getInstance().currentUser
         viewModel.user.observe(viewLifecycleOwner, Observer { firebaseUser ->
-            val providers = arrayListOf(
-                AuthUI.IdpConfig.EmailBuilder().build(),
-                AuthUI.IdpConfig.GoogleBuilder().build())
-
             if (firebaseUser == null) {
-                startActivityForResult(
-                    AuthUI.getInstance()
-                        .createSignInIntentBuilder()
-                        .setAvailableProviders(providers)
-                        .build(),
-                    RC_SIGN_IN)
+                signIn()
+            } else {
+                requireView().findNavController().navigate(R.id.action_mainFragment_to_gatewayFragment)
             }
         })
-        binding.signOutButton.setOnClickListener {
-            viewModel.signOut()
-        }
         return binding.root
+    }
+
+    private fun signIn() {
+        val providers = arrayListOf(
+            AuthUI.IdpConfig.EmailBuilder().build(),
+            AuthUI.IdpConfig.GoogleBuilder().build()
+        )
+        startActivityForResult(
+            AuthUI.getInstance()
+                .createSignInIntentBuilder()
+                .setAvailableProviders(providers)
+                .build(),
+            RC_SIGN_IN
+        )
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {

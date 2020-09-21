@@ -5,5 +5,15 @@
     <fragment
         android:id="@+id/mainFragment"
         android:name="kg.kloop.android.smsgateway.MainFragment"
-        android:label="MainFragment" />
+        android:label="MainFragment" >
+        <action
+            android:id="@+id/action_mainFragment_to_gatewayFragment"
+            app:destination="@id/gatewayFragment"
+            app:popUpTo="@id/mainFragment"
+            app:popUpToInclusive="true" />
+    </fragment>
+    <fragment
+        android:id="@+id/gatewayFragment"
+        android:name="kg.kloop.android.smsgateway.GatewayFragment"
+        android:label="GatewayFragment" />
 </navigation>
