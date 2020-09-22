@@ -11,6 +11,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
 import androidx.databinding.DataBindingUtil
+import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
@@ -26,7 +27,7 @@ class MainFragment : Fragment() {
 
     private val TAG: String = MainFragment::class.java.simpleName
     private val RC_SIGN_IN: Int = 200
-    private val viewModel: MainViewModel by viewModels()
+    private val viewModel: MainViewModel by activityViewModels()
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -40,6 +41,7 @@ class MainFragment : Fragment() {
 
         viewModel.user.value = FirebaseAuth.getInstance().currentUser
         viewModel.user.observe(viewLifecycleOwner, Observer { firebaseUser ->
+            Log.i(TAG, "firebaseUser: ${firebaseUser?.displayName}")
             if (firebaseUser == null) {
                 signIn()
             } else {
@@ -71,9 +73,15 @@ class MainFragment : Fragment() {
             if (resultCode == Activity.RESULT_OK) {
                 viewModel.user.value = FirebaseAuth.getInstance().currentUser
             } else {
-                Toast.makeText(activity, "Fail", Toast.LENGTH_SHORT).show()
+                Log.i(TAG, "Error: ${response?.error?.stackTrace}")
+                Toast.makeText(activity, getString(R.string.login_is_required), Toast.LENGTH_SHORT).show()
             }
         }
+    }
+
+    override fun onResume() {
+        super.onResume()
+        viewModel.user.value = FirebaseAuth.getInstance().currentUser
     }
 
 }

@@ -7,6 +7,8 @@ import android.os.Build
 import android.os.Bundle
 import android.telephony.SmsMessage
 import android.util.Log
+import android.widget.Toast
+import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
 
@@ -18,7 +20,8 @@ class GatewayBroadcastReceiver : BroadcastReceiver() {
     override fun onReceive(context: Context, intent: Intent) {
         val bundle = intent.extras
         val sms = getSms(bundle)
-        saveToFirestore(sms)
+
+        saveToFirestore(sms, context)
     }
 
     private fun getSms(bundle: Bundle?): SmsMessage? {
@@ -55,7 +58,7 @@ class GatewayBroadcastReceiver : BroadcastReceiver() {
         return null
     }
 
-    private fun saveToFirestore(smsMessage: SmsMessage?) {
+    private fun saveToFirestore(smsMessage: SmsMessage?, context: Context) {
         val db = Firebase.firestore
         val message = Message()
         message.apply {
@@ -63,10 +66,16 @@ class GatewayBroadcastReceiver : BroadcastReceiver() {
             incomingNumber = smsMessage?.originatingAddress
             timeStampMil = smsMessage?.timestampMillis
         }
-        db.collection("messages").add(message).addOnSuccessListener { documentReference ->
-            Log.d(TAG, "DocumentSnapshot added with ID: ${documentReference.id}")
-        }.addOnFailureListener { e ->
-            Log.w(TAG, "Error adding document", e)
+        if (FirebaseAuth.getInstance().currentUser != null) {
+            db.collection("messages").add(message).addOnSuccessListener { documentReference ->
+                Log.d(TAG, "DocumentSnapshot added with ID: ${documentReference.id}")
+                Toast.makeText(context, context.getString(R.string.message_sent), Toast.LENGTH_LONG).show()
+            }.addOnFailureListener { e ->
+                Log.w(TAG, "Error adding document", e)
+                Toast.makeText(context, context.getString(R.string.error_sending_the_message), Toast.LENGTH_LONG).show()
+            }
+        } else {
+            Toast.makeText(context, context.getString(R.string.login_is_required), Toast.LENGTH_LONG).show()
         }
     }
 }

@@ -1,20 +1,44 @@
 package kg.kloop.android.smsgateway
 
+import android.Manifest
+import android.content.pm.PackageManager
 import android.os.Bundle
 import android.util.Log
-import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.activity.result.ActivityResultLauncher
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.core.content.ContextCompat
 import androidx.databinding.DataBindingUtil
+import androidx.fragment.app.Fragment
+import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Observer
+import androidx.navigation.fragment.findNavController
 import kg.kloop.android.smsgateway.databinding.FragmentGatewayBinding
 
+
 class GatewayFragment : Fragment() {
-    private val TAG: String = GatewayViewModel::class.java.simpleName
+    private val PERMISSIONS_REQUEST_READ_SMS: Int = 999
+    private val TAG: String = GatewayFragment::class.java.simpleName
     private val viewModel: GatewayViewModel by viewModels()
-    private val mainViewModel: MainViewModel by viewModels()
+    private val mainViewModel: MainViewModel by activityViewModels()
+    private lateinit var requestPermissionLauncher: ActivityResultLauncher<String?>
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        requestPermissionLauncher =
+            registerForActivityResult(
+                ActivityResultContracts.RequestPermission()
+            ) { isGranted: Boolean ->
+                if (isGranted) {
+                    Log.i(TAG, "permission is granted")
+                } else {
+                    Log.i(TAG, "no permission")
+                }
+            }
+    }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -25,10 +49,38 @@ class GatewayFragment : Fragment() {
         viewModel.data.observe(viewLifecycleOwner, Observer {
             binding.gatewayTextView.text = it.toString()
         })
-
-        binding.signOutButton.setOnClickListener {
-            mainViewModel.signOut()
+        mainViewModel.user.observe(viewLifecycleOwner, Observer { firebaseUser ->
+            Log.i(TAG, "firebaseUser: ${firebaseUser?.displayName}")
+            if (firebaseUser == null) {
+                Log.i(TAG, "navigate to main fragment")
+                findNavController().navigate(R.id.mainFragment)
+            }
+        })
+        binding.startButton.setOnClickListener {
+            checkForSmsPermission()
         }
         return binding.root
     }
+
+    private fun checkForSmsPermission() {
+        when {
+            ContextCompat.checkSelfPermission(
+                requireContext(),
+                Manifest.permission.READ_SMS
+            ) == PackageManager.PERMISSION_GRANTED -> {
+                // You can use the API that requires the permission.
+            }
+            shouldShowRequestPermissionRationale(Manifest.permission.READ_SMS) -> {
+            }
+            else -> {
+                Log.i(TAG, "request permission")
+                // You can directly ask for the permission.
+                // The registered ActivityResultCallback gets the result of this request.
+                requestPermissionLauncher.launch(
+                    Manifest.permission.READ_SMS
+                )
+            }
+        }
+    }
+
 }

@@ -6,4 +6,7 @@
     <string name="start">Start</string>
     <string name="failure_permission">Permission failure</string>
     <string name="permission_required">Permission required</string>
+    <string name="login_is_required">Login is required</string>
+    <string name="error_sending_the_message">Error sending the message</string>
+    <string name="message_sent">Message sent</string>
 </resources>
