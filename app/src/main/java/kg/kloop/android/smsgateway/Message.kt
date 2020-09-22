@@ -1,5 +1,7 @@
 package kg.kloop.android.smsgateway
 
 data class Message(
-    val test: String = ""
+    var text: String = "",
+    var incomingNumber: String? = "",
+    var timeStampMil: Long? = 0L
 )
