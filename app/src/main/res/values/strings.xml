@@ -9,4 +9,7 @@
     <string name="login_is_required">Login is required</string>
     <string name="error_sending_the_message">Error sending the message</string>
     <string name="message_sent">Message sent</string>
+    <string name="sign_in">Sign in</string>
+    <string name="hello">Hello</string>
+    <string name="app_is_working">App is working</string>
 </resources>

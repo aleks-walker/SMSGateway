@@ -1,26 +1,20 @@
 package kg.kloop.android.smsgateway
 
 import android.app.Activity
-
 import android.content.Intent
 import android.os.Bundle
 import android.util.Log
-import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
 import androidx.databinding.DataBindingUtil
+import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
-import androidx.fragment.app.viewModels
-import androidx.lifecycle.Observer
-import androidx.lifecycle.ViewModelProvider
-import androidx.navigation.Navigation
-import androidx.navigation.findNavController
+import androidx.navigation.fragment.findNavController
 import com.firebase.ui.auth.AuthUI
 import com.firebase.ui.auth.IdpResponse
 import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.auth.FirebaseUser
 import kg.kloop.android.smsgateway.databinding.FragmentMainBinding
 
 class MainFragment : Fragment() {
@@ -34,20 +28,22 @@ class MainFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View? {
         // Inflate the layout for this fragment
-        val binding: FragmentMainBinding = DataBindingUtil.inflate(inflater,
+        val binding: FragmentMainBinding = DataBindingUtil.inflate(
+            inflater,
             R.layout.fragment_main,
             container,
-            false)
+            false
+        )
 
         viewModel.user.value = FirebaseAuth.getInstance().currentUser
-        viewModel.user.observe(viewLifecycleOwner, Observer { firebaseUser ->
-            Log.i(TAG, "firebaseUser: ${firebaseUser?.displayName}")
-            if (firebaseUser == null) {
+        if (viewModel.user.value != null) {
+            findNavController().navigate(R.id.action_mainFragment_to_gatewayFragment)
+        }
+        binding.signInButton.setOnClickListener {
+            if (viewModel.user.value == null) {
                 signIn()
-            } else {
-                requireView().findNavController().navigate(R.id.action_mainFragment_to_gatewayFragment)
             }
-        })
+        }
         return binding.root
     }
 
@@ -72,16 +68,13 @@ class MainFragment : Fragment() {
 
             if (resultCode == Activity.RESULT_OK) {
                 viewModel.user.value = FirebaseAuth.getInstance().currentUser
+                findNavController().navigate(R.id.action_mainFragment_to_gatewayFragment)
             } else {
                 Log.i(TAG, "Error: ${response?.error?.stackTrace}")
-                Toast.makeText(activity, getString(R.string.login_is_required), Toast.LENGTH_SHORT).show()
+                Toast.makeText(activity, getString(R.string.login_is_required), Toast.LENGTH_SHORT)
+                    .show()
             }
         }
-    }
-
-    override fun onResume() {
-        super.onResume()
-        viewModel.user.value = FirebaseAuth.getInstance().currentUser
     }
 
 }

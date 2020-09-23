@@ -13,7 +13,6 @@ import androidx.core.content.ContextCompat
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
-import androidx.fragment.app.viewModels
 import androidx.lifecycle.Observer
 import androidx.navigation.fragment.findNavController
 import kg.kloop.android.smsgateway.databinding.FragmentGatewayBinding
@@ -22,7 +21,6 @@ import kg.kloop.android.smsgateway.databinding.FragmentGatewayBinding
 class GatewayFragment : Fragment() {
     private val PERMISSIONS_REQUEST_READ_SMS: Int = 999
     private val TAG: String = GatewayFragment::class.java.simpleName
-    private val viewModel: GatewayViewModel by viewModels()
     private val mainViewModel: MainViewModel by activityViewModels()
     private lateinit var requestPermissionLauncher: ActivityResultLauncher<String?>
 
@@ -46,19 +44,17 @@ class GatewayFragment : Fragment() {
     ): View? {
         val binding: FragmentGatewayBinding =
             DataBindingUtil.inflate(inflater, R.layout.fragment_gateway, container, false)
-        viewModel.data.observe(viewLifecycleOwner, Observer {
-            binding.gatewayTextView.text = it.toString()
-        })
+
         mainViewModel.user.observe(viewLifecycleOwner, Observer { firebaseUser ->
             Log.i(TAG, "firebaseUser: ${firebaseUser?.displayName}")
+            binding.hello = "${getString(R.string.hello)}, ${firebaseUser?.displayName}\n" +
+                    "${getString(R.string.app_is_working)}"
             if (firebaseUser == null) {
                 Log.i(TAG, "navigate to main fragment")
-                findNavController().navigate(R.id.mainFragment)
+                findNavController().navigate(R.id.action_gatewayFragment_to_mainFragment)
             }
         })
-        binding.startButton.setOnClickListener {
-            checkForSmsPermission()
-        }
+        checkForSmsPermission()
         return binding.root
     }
 
