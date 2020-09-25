@@ -11,6 +11,7 @@ import android.widget.Toast
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
+import java.lang.StringBuilder
 
 
 class GatewayBroadcastReceiver : BroadcastReceiver() {
@@ -24,7 +25,7 @@ class GatewayBroadcastReceiver : BroadcastReceiver() {
         saveToFirestore(sms, context)
     }
 
-    private fun getSms(bundle: Bundle?): SmsMessage? {
+    private fun getSms(bundle: Bundle?): Message? {
         val pdu_type = "pdus"
         // Get the SMS message.
         val msgs: Array<SmsMessage?>
@@ -37,6 +38,9 @@ class GatewayBroadcastReceiver : BroadcastReceiver() {
             val isVersionM = Build.VERSION.SDK_INT >= Build.VERSION_CODES.M
             // Fill the msgs array.
             msgs = arrayOfNulls<SmsMessage>(pdus.size)
+            val messageText = StringBuilder()
+            var originatingAddress: String? = null
+            var timeInMil: Long? = null
             for (i in msgs.indices) {
                 // Check Android version and use appropriate createFromPdu.
                 if (isVersionM) {
@@ -49,25 +53,29 @@ class GatewayBroadcastReceiver : BroadcastReceiver() {
                 // Build the message to show.
                 strMessage += "SMS from " + msgs[i]?.originatingAddress
                 strMessage += """ :${msgs[i]?.messageBody.toString()}"""
+
+                messageText.append(msgs[i]?.messageBody.toString())
+                originatingAddress = msgs[i]?.originatingAddress
+                timeInMil = msgs[i]?.timestampMillis
                 // Log and display the SMS message.
                 Log.d(TAG, "onReceive: $strMessage")
-//                Toast.makeText(context, strMessage, Toast.LENGTH_LONG).show()
-                return msgs[i]
             }
+            return Message(
+                text = messageText.toString(),
+                incomingNumber = originatingAddress,
+                timeStampMil = timeInMil)
         }
         return null
     }
 
-    private fun saveToFirestore(smsMessage: SmsMessage?, context: Context) {
+    private fun saveToFirestore(message: Message?, context: Context) {
         val db = Firebase.firestore
-        val message = Message()
-        message.apply {
-            text = smsMessage?.messageBody.toString()
-            incomingNumber = smsMessage?.originatingAddress
-            timeStampMil = smsMessage?.timestampMillis
-        }
-        if (FirebaseAuth.getInstance().currentUser != null) {
-            db.collection("messages").add(message).addOnSuccessListener { documentReference ->
+        val firebaseUser = FirebaseAuth.getInstance().currentUser
+        if (firebaseUser != null) {
+            Log.i(TAG, "user id: ${firebaseUser.uid}")
+            db.collection("responses/${firebaseUser.uid}/answers")
+                    .add(message!!)
+                    .addOnSuccessListener { documentReference ->
                 Log.d(TAG, "DocumentSnapshot added with ID: ${documentReference.id}")
                 Toast.makeText(context, context.getString(R.string.message_sent), Toast.LENGTH_LONG).show()
             }.addOnFailureListener { e ->
