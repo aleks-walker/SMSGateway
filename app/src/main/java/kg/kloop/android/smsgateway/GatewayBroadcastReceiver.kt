@@ -9,6 +9,7 @@ import android.telephony.SmsMessage
 import android.util.Log
 import android.widget.Toast
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
 import java.lang.StringBuilder
@@ -63,7 +64,8 @@ class GatewayBroadcastReceiver : BroadcastReceiver() {
             return Message(
                 text = messageText.toString(),
                 incomingNumber = originatingAddress,
-                timeStampMil = timeInMil)
+                timeStampMil = timeInMil
+            )
         }
         return null
     }
@@ -72,18 +74,48 @@ class GatewayBroadcastReceiver : BroadcastReceiver() {
         val db = Firebase.firestore
         val firebaseUser = FirebaseAuth.getInstance().currentUser
         if (firebaseUser != null) {
-            Log.i(TAG, "user id: ${firebaseUser.uid}")
-            db.collection("responses/${firebaseUser.uid}/answers")
-                    .add(message!!)
-                    .addOnSuccessListener { documentReference ->
-                Log.d(TAG, "DocumentSnapshot added with ID: ${documentReference.id}")
-                Toast.makeText(context, context.getString(R.string.message_sent), Toast.LENGTH_LONG).show()
-            }.addOnFailureListener { e ->
-                Log.w(TAG, "Error adding document", e)
-                Toast.makeText(context, context.getString(R.string.error_sending_the_message), Toast.LENGTH_LONG).show()
-            }
+            Log.i(TAG, "firebase user id: ${firebaseUser.uid}")
+            db.collection("users")
+                .whereEqualTo("phone_number", message?.incomingNumber)
+                .get()
+                .addOnSuccessListener { users ->
+                    var userId: String? = null
+                    // should be one
+                    for (user in users) {
+                        userId = user.id
+                        break
+                    }
+                    Log.i(TAG, "user id: $userId")
+                    var answersRef = db.collection("responses")
+                    answersRef = if (userId != null) {
+                        answersRef.document(userId).collection("answers")
+                    } else {
+                        answersRef.document("unknown_phones").collection("answers")
+                    }
+                    answersRef
+                        .add(message!!)
+                        .addOnSuccessListener { documentReference ->
+                            Log.d(TAG, "DocumentSnapshot added with ID: ${documentReference.id}")
+                            Toast.makeText(
+                                context,
+                                context.getString(R.string.message_sent),
+                                Toast.LENGTH_LONG
+                            ).show()
+                        }.addOnFailureListener { e ->
+                            Log.w(TAG, "Error adding document", e)
+                            Toast.makeText(
+                                context,
+                                context.getString(R.string.error_sending_the_message),
+                                Toast.LENGTH_LONG
+                            ).show()
+                        }
+                }
         } else {
-            Toast.makeText(context, context.getString(R.string.login_is_required), Toast.LENGTH_LONG).show()
+            Toast.makeText(
+                context,
+                context.getString(R.string.login_is_required),
+                Toast.LENGTH_LONG
+            ).show()
         }
     }
 }
