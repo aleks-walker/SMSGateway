@@ -1,34 +1,34 @@
 {
   "project_info": {
-    "project_number": "870806535030",
-    "firebase_url": "https://smsgateway-d7b7b.firebaseio.com",
-    "project_id": "smsgateway-d7b7b",
-    "storage_bucket": "smsgateway-d7b7b.appspot.com"
+    "project_number": "145410178875",
+    "firebase_url": "https://electionsmonitor-5d008.firebaseio.com",
+    "project_id": "electionsmonitor-5d008",
+    "storage_bucket": "electionsmonitor-5d008.appspot.com"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:870806535030:android:fead49e65b7e19faea9857",
+        "mobilesdk_app_id": "1:145410178875:android:657666373e7ae94162811e",
         "android_client_info": {
           "package_name": "kg.kloop.android.smsgateway"
         }
       },
       "oauth_client": [
         {
-          "client_id": "870806535030-sq3u41m5lsbv60rf1tjjdcciep1deakf.apps.googleusercontent.com",
+          "client_id": "145410178875-jp4sm6e9fgdkeoodiolp0c3hoclhq725.apps.googleusercontent.com",
           "client_type": 3
         }
       ],
       "api_key": [
         {
-          "current_key": "AIzaSyBUkNbnFBuvX6bZVLnXneplmjt5NMdTkkM"
+          "current_key": "AIzaSyBeFCF58iEadbU_OCWaPVnsaGC0za5C1Co"
         }
       ],
       "services": {
         "appinvite_service": {
           "other_platform_oauth_client": [
             {
-              "client_id": "870806535030-sq3u41m5lsbv60rf1tjjdcciep1deakf.apps.googleusercontent.com",
+              "client_id": "145410178875-o3q0v9hj06v2l6es3ltstaernqoh88ab.apps.googleusercontent.com",
               "client_type": 3
             }
           ]

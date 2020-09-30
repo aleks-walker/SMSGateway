@@ -9,6 +9,7 @@ import android.telephony.SmsMessage
 import android.util.Log
 import android.widget.Toast
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.firestore.CollectionReference
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
@@ -90,25 +91,13 @@ class GatewayBroadcastReceiver : BroadcastReceiver() {
                     answersRef = if (userId != null) {
                         answersRef.document(userId).collection("answers")
                     } else {
+                        // if the phone was not found among users, send message to unknown
                         answersRef.document("unknown_phones").collection("answers")
                     }
-                    answersRef
-                        .add(message!!)
-                        .addOnSuccessListener { documentReference ->
-                            Log.d(TAG, "DocumentSnapshot added with ID: ${documentReference.id}")
-                            Toast.makeText(
-                                context,
-                                context.getString(R.string.message_sent),
-                                Toast.LENGTH_LONG
-                            ).show()
-                        }.addOnFailureListener { e ->
-                            Log.w(TAG, "Error adding document", e)
-                            Toast.makeText(
-                                context,
-                                context.getString(R.string.error_sending_the_message),
-                                Toast.LENGTH_LONG
-                            ).show()
-                        }
+                    addDoc(answersRef, message, context)
+                }.addOnFailureListener {
+                    Toast.makeText(context, it.localizedMessage?.toString(), Toast.LENGTH_LONG)
+                        .show()
                 }
         } else {
             Toast.makeText(
@@ -117,6 +106,30 @@ class GatewayBroadcastReceiver : BroadcastReceiver() {
                 Toast.LENGTH_LONG
             ).show()
         }
+    }
+
+    private fun addDoc(
+        answersRef: CollectionReference,
+        message: Message?,
+        context: Context
+    ) {
+        answersRef
+            .add(message!!)
+            .addOnSuccessListener { documentReference ->
+                Log.d(TAG, "DocumentSnapshot added with ID: ${documentReference.id}")
+                Toast.makeText(
+                    context,
+                    context.getString(R.string.message_sent),
+                    Toast.LENGTH_LONG
+                ).show()
+            }.addOnFailureListener { e ->
+                Log.w(TAG, "Error adding document", e)
+                Toast.makeText(
+                    context,
+                    context.getString(R.string.error_sending_the_message),
+                    Toast.LENGTH_LONG
+                ).show()
+            }
     }
 }
 
